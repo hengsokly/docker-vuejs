@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    command: ["http-server", "dist"]
+    volumes:
+      # - .:/app
+      - ./node_modules:/app/node_modules
+    ports:
+      - '8080:8080'
+    stdin_open: true
+    tty: true
+    logging:
+      driver: json-file
+      options:
+        max-size: 1m
+        max-file: '10'
