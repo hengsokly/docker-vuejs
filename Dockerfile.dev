@@ -1,17 +1,26 @@
-# Choose the Image which has Node installed already
-FROM node:lts-alpine
+# syntax=docker/dockerfile:1.4
+FROM --platform=$BUILDPLATFORM node:14.4.0-alpine AS development
 
-# install simple http server for serving static content
-RUN npm install -g http-server
-
-# make the 'app' folder the current working directory
+RUN mkdir /app
 WORKDIR /app
 
-# copy both 'package.json' and 'package-lock.json' (if available)
-COPY package*.json ./
+COPY . ./app
 
-# install project dependencies
-RUN npm install
+RUN yarn global add @vue/cli
+RUN yarn install
+ENV HOST=0.0.0.0
+CMD ["yarn", "run", "serve"]
 
-# copy project files and folders to the current working directory (i.e. 'app' folder)
-COPY . /app
+FROM development as dev-envs
+RUN <<EOF
+apk update
+apk add git
+EOF
+
+RUN <<EOF
+addgroup -S docker
+adduser -S --shell /bin/bash --ingroup docker vscode
+EOF
+# install Docker tools (cli, buildx, compose)
+COPY --from=gloursdocker/docker / /
+CMD ["yarn", "run", "serve"]

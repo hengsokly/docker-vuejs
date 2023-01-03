@@ -5,12 +5,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.dev
-    command: ["http-server", "dist"]
-    volumes:
-      # - .:/app
-      - ./node_modules:/app/node_modules
+      target: development
     ports:
-      - '8080:8080'
+      - 8080:8080
+    volumes:
+      - .:/app
+      - ./node_modules:/app/node_modules
     stdin_open: true
     tty: true
     logging:
